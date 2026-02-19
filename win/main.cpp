@@ -13,6 +13,8 @@
 #include "../include/unixcall.h"
 #include "thunks.generated.h"
 
+extern "C" {
+
 __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     if (ul_reason_for_call != DLL_PROCESS_ATTACH)
@@ -31,7 +33,7 @@ __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for
 __declspec(dllexport) int hi()
 {
     MessageBoxA(NULL, "Hello, world!", "", MB_OK);
-    NTSTATUS res = UNIX_CALL(0, "Hello, world from Windows world!");
+    NTSTATUS res = UNIX_CALL(0, (void*)"Hello, world from Windows world!");
     return 0;
 }
 
@@ -128,4 +130,6 @@ __declspec(dllexport) XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderRuntimeInt
     runtimeRequest->getInstanceProcAddr = (PFN_xrGetInstanceProcAddr)&our_xrGetInstanceProcAddr;
 
     return XR_SUCCESS;
+}
+
 }

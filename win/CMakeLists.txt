@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-project(wineopenxr-win C)
+project(wineopenxr-win C CXX)
 
 set(WINE_LIB_PATH "/Applications/Wine Staging.app/Contents/Resources/wine/lib/wine/x86_64-windows"
     CACHE PATH "Path to Wine's x86_64-windows library directory")
 
-add_library(wineopenxr SHARED main.c wine_unixcall.c)
+add_library(wineopenxr SHARED main.cpp wine_unixcall.c)
 
 target_include_directories(wineopenxr PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/OpenXR-SDK/include
