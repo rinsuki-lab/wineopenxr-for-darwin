@@ -17,3 +17,10 @@ set_target_properties(wineopenxr PROPERTIES
     PREFIX ""
     OUTPUT_NAME "wineopenxr"
 )
+
+# Copy openxr64.json next to the built target so it's available as an artifact
+add_custom_command(TARGET wineopenxr POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/openxr64.json"
+        "$<TARGET_FILE_DIR:wineopenxr>/openxr64.json"
+)
