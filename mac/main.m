@@ -15,17 +15,19 @@ static NTSTATUS _Hello(const uint8_t* message)
         [alert release];
     });
 
-    return 0;
+    return STATUS_SUCCESS;
 }
 
 static NTSTATUS _GetOpenXRLoaderRuntimeVersion(uint32_t* version)
 {
     *version = XR_CURRENT_LOADER_RUNTIME_VERSION;
+    return STATUS_SUCCESS;
 }
 
 static NTSTATUS _GetOpenXRAPIVersion(uint64_t* version)
 {
     *version = XR_CURRENT_API_VERSION;
+    return STATUS_SUCCESS;
 }
 
 const void* __wine_unix_call_funcs[] = 
