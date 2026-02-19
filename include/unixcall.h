@@ -13,5 +13,12 @@ struct PARAMS_xrEnumerateInstanceExtensionProperties
     XrResult result;
 };
 
+struct PARAMS_xrCreateInstance
+{
+    const XrInstanceCreateInfo* createInfo;
+    XrInstance* instance;
+    XrResult result;
+};
+
 #pragma pack(pop)
 #endif

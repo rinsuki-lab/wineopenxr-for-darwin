@@ -46,10 +46,29 @@ static NTSTATUS _xrEnumerateInstanceExtensionProperties(struct PARAMS_xrEnumerat
     return STATUS_SUCCESS;
 }
 
+static NTSTATUS _xrCreateInstance(struct PARAMS_xrCreateInstance* params)
+{
+    XrInstanceCreateInfo modifiedCreateInfo = *params->createInfo;
+    // We need to modify XR_KHR_D3D11_enable to XR_KHR_metal_enable
+    const char** modifiedExtensionNames = malloc(sizeof(char*) * modifiedCreateInfo.enabledExtensionCount);
+    for (uint32_t i = 0; i < modifiedCreateInfo.enabledExtensionCount; i++) {
+        if (strcmp(modifiedCreateInfo.enabledExtensionNames[i], "XR_KHR_D3D11_enable") == 0) {
+            modifiedExtensionNames[i] = "XR_KHR_metal_enable";
+        } else {
+            modifiedExtensionNames[i] = modifiedCreateInfo.enabledExtensionNames[i];
+        }
+    }
+    modifiedCreateInfo.enabledExtensionNames = modifiedExtensionNames;
+    params->result = xrCreateInstance(&modifiedCreateInfo, params->instance);
+    free(modifiedExtensionNames);
+    return STATUS_SUCCESS;
+}
+
 const void* __wine_unix_call_funcs[] = 
 {
     &_Hello,
     &_GetOpenXRLoaderRuntimeVersion,
     &_GetOpenXRAPIVersion,
     &_xrEnumerateInstanceExtensionProperties,
+    &_xrCreateInstance,
 };

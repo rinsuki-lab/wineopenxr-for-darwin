@@ -40,6 +40,17 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateInstanceExtensionProperties(const
     return params.result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateInstance(const XrInstanceCreateInfo* createInfo, XrInstance* instance)
+{
+    struct PARAMS_xrCreateInstance params = {
+        .createInfo = createInfo,
+        .instance = instance,
+    };
+    NTSTATUS res = UNIX_CALL(4, &params);
+    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
+    return params.result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     if (strcmp(name, "xrEnumerateInstanceExtensionProperties") == 0)
@@ -47,7 +58,12 @@ XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, con
         *function = (PFN_xrVoidFunction)&wine_xrEnumerateInstanceExtensionProperties;
         return XR_SUCCESS;
     }
-    MessageBoxA(NULL, name, "xrGetInstanceProcAddr called with name", MB_OK);
+    if (strcmp(name, "xrCreateInstance") == 0)
+    {
+        *function = (PFN_xrVoidFunction)&wine_xrCreateInstance;
+        return XR_SUCCESS;
+    }
+    fprintf(stderr, "Unknown function requested: %s\n", name);
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 
