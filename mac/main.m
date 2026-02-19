@@ -85,6 +85,59 @@ static NTSTATUS _GetOpenXRMetalDeviceRegistryID(struct PARAMS_GetOpenXRMetalDevi
     return STATUS_SUCCESS;
 }
 
+const int64_t metal_and_dxgi_formats[][2] = {
+    { MTLPixelFormatBGRA8Unorm, 87 }, // DXGI_FORMAT_B8G8R8A8_UNORM
+    { MTLPixelFormatBGRA8Unorm_sRGB, 91 }, // DXGI_FORMAT_B8G8R8A8_UNORM_SRGB
+    { MTLPixelFormatRGBA8Unorm, 28 }, // DXGI_FORMAT_R8G8B8A8_UNORM
+    { MTLPixelFormatRGBA8Unorm_sRGB, 29 }, // DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
+};
+const size_t metal_and_dxgi_formats_count = sizeof(metal_and_dxgi_formats) / sizeof(metal_and_dxgi_formats[0]);
+
+static NTSTATUS _xrEnumerateSwapchainFormats(struct PARAMS_xrEnumerateSwapchainFormats* params)
+{
+    params->result = xrEnumerateSwapchainFormats(params->session, params->formatCapacityInput, params->formatCountOutput, params->formats);
+    uint32_t count = *params->formatCountOutput;
+    if (count > params->formatCapacityInput) {
+        count = params->formatCapacityInput;
+    }
+    for (uint32_t i = 0; i < count; i++) {
+        int64_t new_format = 0; // DXGI_FORMAT_UNKNOWN
+        for (size_t j = 0; j < metal_and_dxgi_formats_count; j++) {
+            if (params->formats[i] == metal_and_dxgi_formats[j][0]) {
+                new_format = metal_and_dxgi_formats[j][1];
+                break;
+            }
+        }
+        if (new_format == 0) {
+            fprintf(stderr, "wineopenxr: Warning: Unrecognized swapchain format %lld\n", params->formats[i]);
+            new_format = params->formats[i];
+        }
+        params->formats[i] = new_format;
+    }
+    return STATUS_SUCCESS;
+}
+
+static NTSTATUS _xrCreateSwapchain(struct PARAMS_xrCreateSwapchain* params)
+{
+    XrSwapchainCreateInfo modifiedInfo = *params->createInfo;
+    // modify format
+    int64_t new_format = 0; // DXGI_FORMAT_UNKNOWN
+    for (size_t j = 0; j < metal_and_dxgi_formats_count; j++) {
+        if (modifiedInfo.format == metal_and_dxgi_formats[j][1]) {
+            new_format = metal_and_dxgi_formats[j][0];
+            break;
+        }
+    }
+    if (new_format == 0) {
+        fprintf(stderr, "wineopenxr: Warning: Unrecognized swapchain format %lld\n", modifiedInfo.format);
+        params->result = XR_ERROR_SWAPCHAIN_FORMAT_UNSUPPORTED;
+        return STATUS_SUCCESS;
+    }
+    modifiedInfo.format = new_format;
+    params->result = xrCreateSwapchain(params->session, &modifiedInfo, params->swapchain);
+    return STATUS_SUCCESS;
+}
+
 const void* __wine_unix_call_funcs[] = 
 {
     &_Hello,
@@ -93,6 +146,8 @@ const void* __wine_unix_call_funcs[] =
     &_xrEnumerateInstanceExtensionProperties,
     &_xrCreateInstance,
     &_GetOpenXRMetalDeviceRegistryID,
+    &_xrEnumerateSwapchainFormats,
+    &_xrCreateSwapchain,
     // you need to modify & regenerate generate_thunks.py after adding new functions
     GENERATED_UNIX_CALLS,
 };

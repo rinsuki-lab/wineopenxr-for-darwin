@@ -74,25 +74,6 @@ static NTSTATUS _wine_xrDestroySpace (struct PARAMS_xrDestroySpace* params) {
     return STATUS_SUCCESS;
 }
 
-static NTSTATUS _wine_xrEnumerateSwapchainFormats (struct PARAMS_xrEnumerateSwapchainFormats* params) {
-    params->result = xrEnumerateSwapchainFormats(
-        params->session
-      , params->formatCapacityInput
-      , params->formatCountOutput
-      , params->formats
-    );
-    return STATUS_SUCCESS;
-}
-
-static NTSTATUS _wine_xrCreateSwapchain (struct PARAMS_xrCreateSwapchain* params) {
-    params->result = xrCreateSwapchain(
-        params->session
-      , params->createInfo
-      , params->swapchain
-    );
-    return STATUS_SUCCESS;
-}
-
 static NTSTATUS _wine_xrDestroySwapchain (struct PARAMS_xrDestroySwapchain* params) {
     params->result = xrDestroySwapchain(
         params->swapchain
@@ -463,5 +444,5 @@ static NTSTATUS _wine_xrLocateSpaces (struct PARAMS_xrLocateSpaces* params) {
     return STATUS_SUCCESS;
 }
 
-#define GENERATED_UNIX_CALLS &_wine_xrDestroyInstance, &_wine_xrGetInstanceProperties, &_wine_xrGetSystem, &_wine_xrGetSystemProperties, &_wine_xrCreateSession, &_wine_xrDestroySession, &_wine_xrDestroySpace, &_wine_xrEnumerateSwapchainFormats, &_wine_xrCreateSwapchain, &_wine_xrDestroySwapchain, &_wine_xrEnumerateSwapchainImages, &_wine_xrAcquireSwapchainImage, &_wine_xrWaitSwapchainImage, &_wine_xrReleaseSwapchainImage, &_wine_xrBeginSession, &_wine_xrEndSession, &_wine_xrRequestExitSession, &_wine_xrEnumerateReferenceSpaces, &_wine_xrCreateReferenceSpace, &_wine_xrCreateActionSpace, &_wine_xrLocateSpace, &_wine_xrEnumerateViewConfigurations, &_wine_xrEnumerateEnvironmentBlendModes, &_wine_xrGetViewConfigurationProperties, &_wine_xrEnumerateViewConfigurationViews, &_wine_xrBeginFrame, &_wine_xrLocateViews, &_wine_xrEndFrame, &_wine_xrWaitFrame, &_wine_xrApplyHapticFeedback, &_wine_xrStopHapticFeedback, &_wine_xrPollEvent, &_wine_xrStringToPath, &_wine_xrPathToString, &_wine_xrGetReferenceSpaceBoundsRect, &_wine_xrGetActionStateBoolean, &_wine_xrGetActionStateFloat, &_wine_xrGetActionStateVector2f, &_wine_xrGetActionStatePose, &_wine_xrCreateActionSet, &_wine_xrDestroyActionSet, &_wine_xrCreateAction, &_wine_xrDestroyAction, &_wine_xrSuggestInteractionProfileBindings, &_wine_xrAttachSessionActionSets, &_wine_xrGetCurrentInteractionProfile, &_wine_xrSyncActions, &_wine_xrEnumerateBoundSourcesForAction, &_wine_xrGetInputSourceLocalizedName, &_wine_xrLocateSpaces
+#define GENERATED_UNIX_CALLS &_wine_xrDestroyInstance, &_wine_xrGetInstanceProperties, &_wine_xrGetSystem, &_wine_xrGetSystemProperties, &_wine_xrCreateSession, &_wine_xrDestroySession, &_wine_xrDestroySpace, &_wine_xrDestroySwapchain, &_wine_xrEnumerateSwapchainImages, &_wine_xrAcquireSwapchainImage, &_wine_xrWaitSwapchainImage, &_wine_xrReleaseSwapchainImage, &_wine_xrBeginSession, &_wine_xrEndSession, &_wine_xrRequestExitSession, &_wine_xrEnumerateReferenceSpaces, &_wine_xrCreateReferenceSpace, &_wine_xrCreateActionSpace, &_wine_xrLocateSpace, &_wine_xrEnumerateViewConfigurations, &_wine_xrEnumerateEnvironmentBlendModes, &_wine_xrGetViewConfigurationProperties, &_wine_xrEnumerateViewConfigurationViews, &_wine_xrBeginFrame, &_wine_xrLocateViews, &_wine_xrEndFrame, &_wine_xrWaitFrame, &_wine_xrApplyHapticFeedback, &_wine_xrStopHapticFeedback, &_wine_xrPollEvent, &_wine_xrStringToPath, &_wine_xrPathToString, &_wine_xrGetReferenceSpaceBoundsRect, &_wine_xrGetActionStateBoolean, &_wine_xrGetActionStateFloat, &_wine_xrGetActionStateVector2f, &_wine_xrGetActionStatePose, &_wine_xrCreateActionSet, &_wine_xrDestroyActionSet, &_wine_xrCreateAction, &_wine_xrDestroyAction, &_wine_xrSuggestInteractionProfileBindings, &_wine_xrAttachSessionActionSets, &_wine_xrGetCurrentInteractionProfile, &_wine_xrSyncActions, &_wine_xrEnumerateBoundSourcesForAction, &_wine_xrGetInputSourceLocalizedName, &_wine_xrLocateSpaces
 #define LAST_UNIX_CALL 55

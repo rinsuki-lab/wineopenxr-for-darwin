@@ -6,9 +6,11 @@ XML_PATH = "third_party/OpenXR-SDK/specification/registry/xr.xml"
 THUNKS_WINDOWS_SIDE_ONLY = {
     "xrEnumerateInstanceExtensionProperties": 3,
     "xrCreateInstance": 4,
+    "xrEnumerateSwapchainFormats": 6,
+    "xrCreateSwapchain": 7,
 }
 
-syscall_number = 6
+syscall_number = 8
 
 THUNKS = [
     "xrDestroyInstance",
@@ -26,7 +28,6 @@ THUNKS = [
     "xrCreateActionSpace",
     "xrCreateReferenceSpace",
     "xrCreateSession",
-    "xrCreateSwapchain",
     "xrDestroyAction",
     "xrDestroyActionSet",
     "xrDestroySession",
@@ -36,7 +37,6 @@ THUNKS = [
     "xrEndSession",
     "xrEnumerateBoundSourcesForAction",
     "xrEnumerateReferenceSpaces",
-    "xrEnumerateSwapchainFormats",
     "xrEnumerateSwapchainImages",
     "xrEnumerateViewConfigurations",
     "xrEnumerateViewConfigurationViews",
@@ -103,6 +103,7 @@ with open(XML_PATH, "r") as fr:
         if protoName not in THUNKS_WINDOWS_SIDE_ONLY:
             mac_c: list[str] = [
                 "static NTSTATUS _wine_" + protoName + " (struct PARAMS_" + protoName + "* params) {",
+                # "    fprintf(stderr, \"[wineopenxr] " + protoName + "\\n\");",
                 "    params->result = " + protoName + "("
             ]
         win_c: list[str] = [
