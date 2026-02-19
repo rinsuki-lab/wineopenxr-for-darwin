@@ -13,6 +13,8 @@
 #include "../include/unixcall.h"
 #include "thunks.generated.h"
 
+#include "dxmt.hpp"
+
 extern "C" {
 
 __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -70,9 +72,17 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrCreateSession(XrInstance  instance, const X
         return XR_ERROR_GRAPHICS_DEVICE_INVALID;
     }
 
+    IMTLDXGIDevice1* dxgiDevice = NULL;
+    HRESULT hr = d3d11Device->QueryInterface(IID_IMTLDXGIDevice1, (void**)&dxgiDevice);
+    if (FAILED(hr) || dxgiDevice == NULL) {
+        fprintf(stderr, "xrCreateSession: QueryInterface for IMTLDXGIDevice1 failed, hr = 0x%08x\n", hr);
+        return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+    }
+
     XrGraphicsBindingMetalKHR metalBinding = {
         .type = XR_TYPE_GRAPHICS_BINDING_METAL_KHR,
         .next = NULL,
+        .commandQueue = dxgiDevice->GetMTLCommandQueue(),
     };
 
     XrSessionCreateInfo modifiedCreateInfo = *createInfo;
