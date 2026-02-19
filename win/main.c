@@ -28,42 +28,8 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateInstanceExtensionProperties(const char* layerName, uint32_t propertyCapacityInput, uint32_t* propertyCountOutput, XrExtensionProperties* properties)
-{
-    struct PARAMS_xrEnumerateInstanceExtensionProperties params = {
-        .layerName = layerName,
-        .propertyCapacityInput = propertyCapacityInput,
-        .propertyCountOutput = propertyCountOutput,
-        .properties = properties,
-    };
-    NTSTATUS res = UNIX_CALL(3, &params);
-    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
-    return params.result;
-}
-
-XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateInstance(const XrInstanceCreateInfo* createInfo, XrInstance* instance)
-{
-    struct PARAMS_xrCreateInstance params = {
-        .createInfo = createInfo,
-        .instance = instance,
-    };
-    NTSTATUS res = UNIX_CALL(4, &params);
-    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
-    return params.result;
-}
-
 XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
-    if (strcmp(name, "xrEnumerateInstanceExtensionProperties") == 0)
-    {
-        *function = (PFN_xrVoidFunction)&wine_xrEnumerateInstanceExtensionProperties;
-        return XR_SUCCESS;
-    }
-    if (strcmp(name, "xrCreateInstance") == 0)
-    {
-        *function = (PFN_xrVoidFunction)&wine_xrCreateInstance;
-        return XR_SUCCESS;
-    }
     if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)
     {
         return XR_SUCCESS;

@@ -6,21 +6,5 @@
 
 #include "unixcall.generated.h"
 
-struct PARAMS_xrEnumerateInstanceExtensionProperties
-{
-    const char* layerName;
-    const uint32_t propertyCapacityInput;
-    uint32_t* propertyCountOutput;
-    XrExtensionProperties* properties;
-    XrResult result;
-};
-
-struct PARAMS_xrCreateInstance
-{
-    const XrInstanceCreateInfo* createInfo;
-    XrInstance* instance;
-    XrResult result;
-};
-
 #pragma pack(pop)
 #endif

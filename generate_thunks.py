@@ -3,6 +3,13 @@ import xml.etree.ElementTree as ET
 
 XML_PATH = "third_party/OpenXR-SDK/specification/registry/xr.xml"
 
+THUNKS_WINDOWS_SIDE_ONLY = {
+    "xrEnumerateInstanceExtensionProperties": 3,
+    "xrCreateInstance": 4,
+}
+
+syscall_number = 5
+
 THUNKS = [
     "xrDestroyInstance",
     "xrGetInstanceProperties",
@@ -68,7 +75,6 @@ thunk_shared = ""
 
 thunk_mac_arr: list[str] = []
 
-syscall_number = 5
 
 with open(XML_PATH, "r") as fr:
     xml_content = fr.read()
@@ -82,14 +88,23 @@ with open(XML_PATH, "r") as fr:
             continue
         protoType = proto.find("type").text
         protoName = proto.find("name").text
-        if protoName not in THUNKS:
+        if protoName not in THUNKS and protoName not in THUNKS_WINDOWS_SIDE_ONLY:
             continue
         print(protoName)
-        thunk_mac_arr.append("&_wine_" + protoName)
-        mac_c: list[str] = [
-            "static NTSTATUS _wine_" + protoName + " (struct PARAMS_" + protoName + "* params) {",
-            "    params->result = " + protoName + "("
-        ]
+        mac_c: list[str] = []
+
+        current_syscall_number = syscall_number
+        if protoName in THUNKS_WINDOWS_SIDE_ONLY:
+            current_syscall_number = THUNKS_WINDOWS_SIDE_ONLY[protoName]
+        else:
+            thunk_mac_arr.append("&_wine_" + protoName)
+            syscall_number += 1
+        
+        if protoName not in THUNKS_WINDOWS_SIDE_ONLY:
+            mac_c: list[str] = [
+                "static NTSTATUS _wine_" + protoName + " (struct PARAMS_" + protoName + "* params) {",
+                "    params->result = " + protoName + "("
+            ]
         win_c: list[str] = [
             "XRAPI_ATTR XrResult XRAPI_CALL wine_" + protoName + "("
         ]
@@ -99,7 +114,7 @@ with open(XML_PATH, "r") as fr:
         ]
         win_c_end: list[str] = [
             "    };",
-            "    NTSTATUS res = UNIX_CALL(" + str(syscall_number) + ", &params);",
+            "    NTSTATUS res = UNIX_CALL(" + str(current_syscall_number) + ", &params);",
             "    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;",
             "    return params.result;",
             "}"
@@ -111,24 +126,28 @@ with open(XML_PATH, "r") as fr:
             for c in param.itertext():
                 text += c + " "
             struct_h.append("    " + text.strip() + ";")
-            mac_c.append("      " + ("  " if  is_first else ", ") + "params->" + param.find("name").text)
+            if protoName not in THUNKS_WINDOWS_SIDE_ONLY:
+                mac_c.append("      " + ("  " if  is_first else ", ") + "params->" + param.find("name").text)
             win_c.append("  " + ("  " if  is_first else ", ") + text.strip())
             win_c_middle.append("        ." + param.find("name").text + " = " + param.find("name").text + ", ")
             is_first = False
         struct_h.append("    " + protoType + " result;")
         struct_h.append("};")
-        mac_c.append("    );")
-        mac_c.append("    return STATUS_SUCCESS;")
-        mac_c.append("}")
+        if protoName not in THUNKS_WINDOWS_SIDE_ONLY:
+            mac_c.append("    );")
+            mac_c.append("    return STATUS_SUCCESS;")
+            mac_c.append("}")
 
-        thunk_mac += "\n".join(mac_c) + "\n\n"
+        if protoName in THUNKS_WINDOWS_SIDE_ONLY:
+            assert len(mac_c) == 0
+        else:
+            thunk_mac += "\n".join(mac_c) + "\n\n"
         thunk_shared += "\n".join(struct_h) + "\n\n"
         thunk_win += "\n".join([*win_c, *win_c_middle, *win_c_end]) + "\n\n"
         thunk_win_gipa += "    if (strcmp(name, \"" + protoName + "\") == 0) {\n"
         thunk_win_gipa += "        *function = (PFN_xrVoidFunction)&wine_" + protoName + ";\n"
         thunk_win_gipa += "        return XR_SUCCESS;\n"
         thunk_win_gipa += "    }\n"
-        syscall_number += 1
 
 thunk_mac += "#define GENERATED_UNIX_CALLS " + ", ".join(thunk_mac_arr) + ""
 thunk_win_gipa += "    return XR_ERROR_FUNCTION_UNSUPPORTED;\n}"

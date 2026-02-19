@@ -18,6 +18,20 @@
  *     
  */
 
+struct PARAMS_xrEnumerateInstanceExtensionProperties {
+    const  char *  layerName;
+    uint32_t   propertyCapacityInput;
+    uint32_t *  propertyCountOutput;
+    XrExtensionProperties *  properties;
+    XrResult result;
+};
+
+struct PARAMS_xrCreateInstance {
+    const  XrInstanceCreateInfo *  createInfo;
+    XrInstance *  instance;
+    XrResult result;
+};
+
 struct PARAMS_xrDestroyInstance {
     XrInstance   instance;
     XrResult result;
