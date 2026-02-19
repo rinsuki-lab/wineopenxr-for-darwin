@@ -4,6 +4,8 @@
 #define UNIXCALL_H
 #pragma pack(push, 8)
 
+#include "unixcall.generated.h"
+
 struct PARAMS_xrEnumerateInstanceExtensionProperties
 {
     const char* layerName;

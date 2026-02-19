@@ -6,6 +6,8 @@
 typedef int NTSTATUS;
 #define STATUS_SUCCESS 0
 
+#include "thunks.generated.h"
+
 static NTSTATUS _Hello(const uint8_t* message)
 {
     dispatch_sync(dispatch_get_main_queue(), ^{
@@ -71,4 +73,6 @@ const void* __wine_unix_call_funcs[] =
     &_GetOpenXRAPIVersion,
     &_xrEnumerateInstanceExtensionProperties,
     &_xrCreateInstance,
+    // you need to modify & regenerate generate_thunks.py after adding new functions
+    GENERATED_UNIX_CALLS,
 };

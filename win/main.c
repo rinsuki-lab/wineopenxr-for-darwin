@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <openxr/openxr_loader_negotiation.h>
 #include "../include/unixcall.h"
+#include "thunks.generated.h"
 
 __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -61,6 +62,10 @@ XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, con
     if (strcmp(name, "xrCreateInstance") == 0)
     {
         *function = (PFN_xrVoidFunction)&wine_xrCreateInstance;
+        return XR_SUCCESS;
+    }
+    if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)
+    {
         return XR_SUCCESS;
     }
     fprintf(stderr, "Unknown function requested: %s\n", name);
