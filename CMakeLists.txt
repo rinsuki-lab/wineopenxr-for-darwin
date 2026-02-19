@@ -6,6 +6,7 @@ include(ExternalProject)
 # --- Configuration ---
 set(WINE_LIB_PATH "/Applications/Wine Staging.app/Contents/Resources/wine/lib/wine/x86_64-windows"
     CACHE PATH "Path to Wine's x86_64-windows library directory")
+set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
 # --- macOS side (wineopenxr.so) ---
 ## Use the bundled OpenXR SDK loader from third_party when available

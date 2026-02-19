@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <openxr/openxr_loader_negotiation.h>
+#include "../include/unixcall.h"
 
 __declspec(dllexport) BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -26,10 +27,28 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
-XRAPI_ATTR PFN_xrVoidFunction XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateInstanceExtensionProperties(const char* layerName, uint32_t propertyCapacityInput, uint32_t* propertyCountOutput, XrExtensionProperties* properties)
 {
+    struct PARAMS_xrEnumerateInstanceExtensionProperties params = {
+        .layerName = layerName,
+        .propertyCapacityInput = propertyCapacityInput,
+        .propertyCountOutput = propertyCountOutput,
+        .properties = properties,
+    };
+    NTSTATUS res = UNIX_CALL(3, &params);
+    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
+    return params.result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+{
+    if (strcmp(name, "xrEnumerateInstanceExtensionProperties") == 0)
+    {
+        *function = (PFN_xrVoidFunction)&wine_xrEnumerateInstanceExtensionProperties;
+        return XR_SUCCESS;
+    }
     MessageBoxA(NULL, name, "xrGetInstanceProcAddr called with name", MB_OK);
-    return NULL;
+    return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 
 __declspec(dllexport) XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderRuntimeInterface(
