@@ -34,7 +34,7 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetD3D11GraphicsRequirementsKHR(XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements)
+XRAPI_ATTR XrResult XRAPI_CALL our_xrGetD3D11GraphicsRequirementsKHR(XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements)
 {
     // @see https://github.com/3Shain/dxmt/blob/58e4115e196c1d7c50c0843462ed9c738950f7fa/src/dxgi/dxgi_adapter.cpp#L16-L19
     struct PARAMS_GetOpenXRMetalDeviceRegistryID params = {
@@ -50,11 +50,11 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetD3D11GraphicsRequirementsKHR(XrInstance
     return XR_SUCCESS;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+XRAPI_ATTR XrResult XRAPI_CALL our_xrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     if (strcmp(name, "xrGetD3D11GraphicsRequirementsKHR") == 0)
     {
-        *function = (PFN_xrVoidFunction)wine_xrGetD3D11GraphicsRequirementsKHR;
+        *function = (PFN_xrVoidFunction)our_xrGetD3D11GraphicsRequirementsKHR;
         return XR_SUCCESS;
     }
     if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)
@@ -91,7 +91,7 @@ __declspec(dllexport) XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderRuntimeInt
     res = UNIX_CALL(2, &loader_api_version);
     if (res != STATUS_SUCCESS) return XR_ERROR_INITIALIZATION_FAILED;
     runtimeRequest->runtimeApiVersion = loader_api_version;
-    runtimeRequest->getInstanceProcAddr = (PFN_xrGetInstanceProcAddr)&ourXrGetInstanceProcAddr;
+    runtimeRequest->getInstanceProcAddr = (PFN_xrGetInstanceProcAddr)&our_xrGetInstanceProcAddr;
 
     return XR_SUCCESS;
 }
