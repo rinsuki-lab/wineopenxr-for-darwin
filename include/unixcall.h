@@ -6,5 +6,13 @@
 
 #include "unixcall.generated.h"
 
+struct PARAMS_GetOpenXRMetalDeviceRegistryID
+{
+    const XrInstance instance;
+    const XrSystemId systemId;
+    uint64_t metalDeviceRegistryId;
+    XrResult result;
+};
+
 #pragma pack(pop)
 #endif

@@ -1,6 +1,12 @@
 #import <Cocoa/Cocoa.h> 
+#import <Metal/Metal.h>
+
 #include <wchar.h>
 #include <openxr/openxr_loader_negotiation.h>
+
+#define XR_USE_GRAPHICS_API_METAL
+#include <openxr/openxr_platform.h>
+
 #include "../include/unixcall.h"
 
 typedef int NTSTATUS;
@@ -66,6 +72,19 @@ static NTSTATUS _xrCreateInstance(struct PARAMS_xrCreateInstance* params)
     return STATUS_SUCCESS;
 }
 
+static NTSTATUS _GetOpenXRMetalDeviceRegistryID(struct PARAMS_GetOpenXRMetalDeviceRegistryID* params)
+{
+    PFN_xrGetMetalGraphicsRequirementsKHR xrGetMetalGraphicsRequirementsKHR;
+    params->result = xrGetInstanceProcAddr(params->instance, "xrGetMetalGraphicsRequirementsKHR", (PFN_xrVoidFunction*)&xrGetMetalGraphicsRequirementsKHR);
+    if (params->result != XR_SUCCESS) return STATUS_SUCCESS;
+    XrGraphicsRequirementsMetalKHR graphicsRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR };
+    params->result = xrGetMetalGraphicsRequirementsKHR(params->instance, params->systemId, &graphicsRequirements);
+    if (params->result != XR_SUCCESS) return STATUS_SUCCESS;
+    id<MTLDevice> device = graphicsRequirements.metalDevice;
+    params->metalDeviceRegistryId = [device registryID];
+    return STATUS_SUCCESS;
+}
+
 const void* __wine_unix_call_funcs[] = 
 {
     &_Hello,
@@ -73,6 +92,9 @@ const void* __wine_unix_call_funcs[] =
     &_GetOpenXRAPIVersion,
     &_xrEnumerateInstanceExtensionProperties,
     &_xrCreateInstance,
+    &_GetOpenXRMetalDeviceRegistryID,
     // you need to modify & regenerate generate_thunks.py after adding new functions
     GENERATED_UNIX_CALLS,
 };
+
+_Static_assert(sizeof(__wine_unix_call_funcs) / sizeof(void*) == LAST_UNIX_CALL + 1, "Generated unix call function count does not match LAST_UNIX_CALL");

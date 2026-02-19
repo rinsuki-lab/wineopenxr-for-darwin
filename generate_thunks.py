@@ -8,7 +8,7 @@ THUNKS_WINDOWS_SIDE_ONLY = {
     "xrCreateInstance": 4,
 }
 
-syscall_number = 5
+syscall_number = 6
 
 THUNKS = [
     "xrDestroyInstance",
@@ -149,7 +149,8 @@ with open(XML_PATH, "r") as fr:
         thunk_win_gipa += "        return XR_SUCCESS;\n"
         thunk_win_gipa += "    }\n"
 
-thunk_mac += "#define GENERATED_UNIX_CALLS " + ", ".join(thunk_mac_arr) + ""
+thunk_mac += "#define GENERATED_UNIX_CALLS " + ", ".join(thunk_mac_arr) + "\n"
+thunk_mac += "#define LAST_UNIX_CALL " + str(syscall_number - 1) + "\n"
 thunk_win_gipa += "    return XR_ERROR_FUNCTION_UNSUPPORTED;\n}"
 
 with open("include/unixcall.generated.h", "w") as f:

@@ -1,8 +1,14 @@
+#define XR_USE_GRAPHICS_API_D3D11
+
 #include <windows.h>
 #include "wine_unixcall.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <openxr/openxr_loader_negotiation.h>
+
+#include <d3d11.h>
+#include <openxr/openxr_platform.h>
+
 #include "../include/unixcall.h"
 #include "thunks.generated.h"
 
@@ -28,8 +34,29 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetD3D11GraphicsRequirementsKHR(XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements)
+{
+    // @see https://github.com/3Shain/dxmt/blob/58e4115e196c1d7c50c0843462ed9c738950f7fa/src/dxgi/dxgi_adapter.cpp#L16-L19
+    struct PARAMS_GetOpenXRMetalDeviceRegistryID params = {
+        .instance = instance,
+        .systemId = systemId,
+    };
+    NTSTATUS res = UNIX_CALL(5, &params);
+    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
+    if (params.result != XR_SUCCESS) return params.result;
+    uint64_t swappedId = __builtin_bswap64(params.metalDeviceRegistryId);
+    memcpy(&graphicsRequirements->adapterLuid, &swappedId, sizeof(uint64_t));
+    graphicsRequirements->minFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+    return XR_SUCCESS;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
+    if (strcmp(name, "xrGetD3D11GraphicsRequirementsKHR") == 0)
+    {
+        *function = (PFN_xrVoidFunction)wine_xrGetD3D11GraphicsRequirementsKHR;
+        return XR_SUCCESS;
+    }
     if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)
     {
         return XR_SUCCESS;
