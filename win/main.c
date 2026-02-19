@@ -26,11 +26,18 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
+XRAPI_ATTR PFN_xrVoidFunction XRAPI_CALL ourXrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
+{
+    MessageBoxA(NULL, name, "xrGetInstanceProcAddr called with name", MB_OK);
+    return NULL;
+}
 
 __declspec(dllexport) XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderRuntimeInterface(
     const XrNegotiateLoaderInfo*                loaderInfo,
     XrNegotiateRuntimeRequest*                  runtimeRequest)
 {
+    NTSTATUS res;
+
     if (loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO) return XR_ERROR_INITIALIZATION_FAILED;
     if (loaderInfo->structVersion != XR_LOADER_INFO_STRUCT_VERSION) return XR_ERROR_INITIALIZATION_FAILED;
     if (loaderInfo->structSize != sizeof(XrNegotiateLoaderInfo)) return XR_ERROR_INITIALIZATION_FAILED;
@@ -39,5 +46,19 @@ __declspec(dllexport) XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderRuntimeInt
     if (runtimeRequest->structVersion != XR_RUNTIME_INFO_STRUCT_VERSION) return XR_ERROR_INITIALIZATION_FAILED;
     if (runtimeRequest->structSize != sizeof(XrNegotiateRuntimeRequest)) return XR_ERROR_INITIALIZATION_FAILED;
 
-    return XR_SUCCESS; // TODO
+    uint32_t loader_runtime_version = 0;
+    res = UNIX_CALL(1, &loader_runtime_version);
+    if (res != STATUS_SUCCESS) return XR_ERROR_INITIALIZATION_FAILED;
+
+    if (loaderInfo->minInterfaceVersion > loader_runtime_version) return XR_ERROR_INITIALIZATION_FAILED;
+    if (loaderInfo->maxInterfaceVersion < loader_runtime_version) return XR_ERROR_INITIALIZATION_FAILED;
+    runtimeRequest->runtimeInterfaceVersion = loader_runtime_version;
+
+    uint64_t loader_api_version = 0;
+    res = UNIX_CALL(2, &loader_api_version);
+    if (res != STATUS_SUCCESS) return XR_ERROR_INITIALIZATION_FAILED;
+    runtimeRequest->runtimeApiVersion = loader_api_version;
+    runtimeRequest->getInstanceProcAddr = (PFN_xrGetInstanceProcAddr)&ourXrGetInstanceProcAddr;
+
+    return XR_SUCCESS;
 }

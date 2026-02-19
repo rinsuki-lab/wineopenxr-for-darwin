@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h> 
 #include <wchar.h>
+#include <openxr/openxr_loader_negotiation.h>
 
 typedef int NTSTATUS;
 #define STATUS_SUCCESS 0
@@ -17,7 +18,19 @@ static NTSTATUS _Hello(const uint8_t* message)
     return 0;
 }
 
+static NTSTATUS _GetOpenXRLoaderRuntimeVersion(uint32_t* version)
+{
+    *version = XR_CURRENT_LOADER_RUNTIME_VERSION;
+}
+
+static NTSTATUS _GetOpenXRAPIVersion(uint64_t* version)
+{
+    *version = XR_CURRENT_API_VERSION;
+}
+
 const void* __wine_unix_call_funcs[] = 
 {
     &_Hello,
+    &_GetOpenXRLoaderRuntimeVersion,
+    &_GetOpenXRAPIVersion,
 };
