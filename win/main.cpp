@@ -39,6 +39,9 @@ __declspec(dllexport) int hi()
     return 0;
 }
 
+// VERY SHITTY IMPLEMENTATION, in the future we should wrap XrInstance and XrSwapchain to store our own data instead.
+static IMTLDXGIDevice1* lastDxgiDevice = NULL;
+
 XRAPI_ATTR XrResult XRAPI_CALL our_xrGetD3D11GraphicsRequirementsKHR(XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements)
 {
     // @see https://github.com/3Shain/dxmt/blob/58e4115e196c1d7c50c0843462ed9c738950f7fa/src/dxgi/dxgi_adapter.cpp#L16-L19
@@ -78,6 +81,7 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrCreateSession(XrInstance  instance, const X
         fprintf(stderr, "xrCreateSession: QueryInterface for IMTLDXGIDevice1 failed, hr = 0x%08x\n", hr);
         return XR_ERROR_GRAPHICS_DEVICE_INVALID;
     }
+    lastDxgiDevice = dxgiDevice;
 
     XrGraphicsBindingMetalKHR metalBinding = {
         .type = XR_TYPE_GRAPHICS_BINDING_METAL_KHR,
@@ -91,6 +95,36 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrCreateSession(XrInstance  instance, const X
     return wine_xrCreateSession(instance, &modifiedCreateInfo, session);
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL our_xrEnumerateSwapchainImages(XrSwapchain swapchain, uint32_t imageCapacityInput, uint32_t* imageCountOutput, XrSwapchainImageBaseHeader* images) {
+    XrSwapchainImageMetalKHR *metalImages = (XrSwapchainImageMetalKHR*)malloc(sizeof(XrSwapchainImageMetalKHR) * imageCapacityInput);
+
+    XrResult result = wine_xrEnumerateSwapchainImages(swapchain, imageCapacityInput, imageCountOutput, (XrSwapchainImageBaseHeader*)metalImages);
+    if (result != XR_SUCCESS) {
+        free(metalImages);
+        return result;
+    }
+
+    uint32_t cnt = *imageCountOutput;
+    if (cnt > imageCapacityInput) cnt = imageCapacityInput;
+
+    for (uint32_t i = 0; i < cnt; i++) {
+        XrSwapchainImageD3D11KHR* d3d11Image = (XrSwapchainImageD3D11KHR*)images + i;
+        d3d11Image->type = XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR;
+        d3d11Image->next = NULL;
+        if (lastDxgiDevice == NULL) {
+            free(metalImages);
+            return XR_ERROR_RUNTIME_FAILURE;
+        }
+        d3d11Image->texture = lastDxgiDevice->ImportMTLTexture(metalImages[i].texture);
+        if (d3d11Image->texture == NULL) {
+            free(metalImages);
+            return XR_ERROR_RUNTIME_FAILURE;
+        }
+    }
+    free(metalImages);
+    return XR_SUCCESS;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL our_xrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     if (strcmp(name, "xrGetD3D11GraphicsRequirementsKHR") == 0)
@@ -101,6 +135,11 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrGetInstanceProcAddr(XrInstance instance, co
     if (strcmp(name, "xrCreateSession") == 0)
     {
         *function = (PFN_xrVoidFunction)our_xrCreateSession;
+        return XR_SUCCESS;
+    }
+    if (strcmp(name, "xrEnumerateSwapchainImages") == 0)
+    {
+        *function = (PFN_xrVoidFunction)our_xrEnumerateSwapchainImages;
         return XR_SUCCESS;
     }
     if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)

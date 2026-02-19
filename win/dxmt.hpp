@@ -13,4 +13,5 @@ IMTLDXGIDevice1: public IDXGIDevice3 {
         const DXGI_SWAP_CHAIN_FULLSCREEN_DESC *pFullscreenDesc,
         IDXGISwapChain1 **ppSwapChain) = 0;
     virtual void* STDMETHODCALLTYPE GetMTLCommandQueue() = 0;
+    virtual ID3D11Texture2D* STDMETHODCALLTYPE ImportMTLTexture(void* /* MTLTexture */ texture) = 0;
 };
