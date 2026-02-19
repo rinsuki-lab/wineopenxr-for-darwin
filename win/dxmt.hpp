@@ -1,4 +1,3 @@
-#include <comdef.h>
 #include <dxgi1_3.h>
 
 // somewhat mingw __uuidof didn't work
