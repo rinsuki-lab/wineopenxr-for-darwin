@@ -1,4 +1,5 @@
 #define XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_METAL
 
 #include <windows.h>
 #include "wine_unixcall.h"
@@ -50,11 +51,44 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrGetD3D11GraphicsRequirementsKHR(XrInstance 
     return XR_SUCCESS;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL our_xrCreateSession(XrInstance  instance, const XrSessionCreateInfo* createInfo, XrSession* session) {
+    // we need to modify the createInfo->next to XrGraphicsBindingMetalKHR from XrGraphicsBindingD3D11KHR
+    if (createInfo->next == NULL) {
+        fprintf(stderr, "xrCreateSession: createInfo->next is NULL, expected XrGraphicsBindingD3D11KHR\n");
+        return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+    }
+    XrGraphicsBindingD3D11KHR* d3d11Binding = (XrGraphicsBindingD3D11KHR*)createInfo->next;
+    if (d3d11Binding->type != XR_TYPE_GRAPHICS_BINDING_D3D11_KHR) {
+        fprintf(stderr, "xrCreateSession: createInfo->next is not XrGraphicsBindingD3D11KHR, expected %d, got %d\n", XR_TYPE_GRAPHICS_BINDING_D3D11_KHR, d3d11Binding->type);
+        return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+    }
+    ID3D11Device* d3d11Device = (ID3D11Device*)d3d11Binding->device;
+    if (d3d11Device == NULL) {
+        fprintf(stderr, "xrCreateSession: d3d11Binding->device is NULL\n");
+        return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+    }
+
+    XrGraphicsBindingMetalKHR metalBinding = {
+        .type = XR_TYPE_GRAPHICS_BINDING_METAL_KHR,
+        .next = NULL,
+    };
+
+    XrSessionCreateInfo modifiedCreateInfo = *createInfo;
+    modifiedCreateInfo.next = &metalBinding;
+
+    return wine_xrCreateSession(instance, &modifiedCreateInfo, session);
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL our_xrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     if (strcmp(name, "xrGetD3D11GraphicsRequirementsKHR") == 0)
     {
         *function = (PFN_xrVoidFunction)our_xrGetD3D11GraphicsRequirementsKHR;
+        return XR_SUCCESS;
+    }
+    if (strcmp(name, "xrCreateSession") == 0)
+    {
+        *function = (PFN_xrVoidFunction)our_xrCreateSession;
         return XR_SUCCESS;
     }
     if (wine_xrGetInstanceProcAddr(instance, name, function) == XR_SUCCESS)
