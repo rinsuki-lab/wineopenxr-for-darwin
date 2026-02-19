@@ -8,6 +8,10 @@ set(WINE_LIB_PATH "/Applications/Wine Staging.app/Contents/Resources/wine/lib/wi
     CACHE PATH "Path to Wine's x86_64-windows library directory")
 
 # --- macOS side (wineopenxr.so) ---
+## Use the bundled OpenXR SDK loader from third_party when available
+add_subdirectory(third_party/OpenXR-SDK)
+
+# macOS build
 add_subdirectory(mac)
 
 # --- Windows side (wineopenxr.dll) ---
