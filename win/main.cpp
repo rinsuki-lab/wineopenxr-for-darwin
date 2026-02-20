@@ -117,6 +117,7 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrEnumerateSwapchainImages(XrSwapchain swapch
         }
         d3d11Image->texture = lastDxgiDevice->ImportMTLTexture(metalImages[i].texture);
         if (d3d11Image->texture == NULL) {
+            MessageBoxA(NULL, "Failed to import MTLTexture to D3D11Texture!!", "WineOpenXR for Darwin", MB_OK | MB_ICONERROR);
             free(metalImages);
             return XR_ERROR_RUNTIME_FAILURE;
         }
