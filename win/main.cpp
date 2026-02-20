@@ -147,7 +147,8 @@ XRAPI_ATTR XrResult XRAPI_CALL our_xrGetInstanceProcAddr(XrInstance instance, co
     {
         return XR_SUCCESS;
     }
-    fprintf(stderr, "Unknown function requested: %s\n", name);
+    // somewhat Steam client would break this
+    // fprintf(stderr, "Unknown function requested: %s\n", name);
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 
