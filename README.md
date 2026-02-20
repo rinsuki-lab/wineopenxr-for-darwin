@@ -6,6 +6,6 @@ OpenXR bridge for Wine on macOS. Inspired from Proton's wineopenxr, but written 
 
 Testing with:
 * wine-staging 11.2 from Homebrew Cask
-* https://github.com/3Shain/dxmt/releases/tag/v0.73
+* our DXMT fork, https://github.com/rinsuki-lab/dxmt/tree/openxr/main
 
 `win/` is for Windows x86_64, `mac/` is for Wine's Unix Call.
