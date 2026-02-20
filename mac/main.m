@@ -90,6 +90,7 @@ const int64_t metal_and_dxgi_formats[][2] = {
     { MTLPixelFormatBGRA8Unorm_sRGB, 91 }, // DXGI_FORMAT_B8G8R8A8_UNORM_SRGB
     { MTLPixelFormatRGBA8Unorm, 28 }, // DXGI_FORMAT_R8G8B8A8_UNORM
     { MTLPixelFormatRGBA8Unorm_sRGB, 29 }, // DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
+    { MTLPixelFormatDepth32Float, 40 }, // DXGI_FORMAT_D32_FLOAT
 };
 const size_t metal_and_dxgi_formats_count = sizeof(metal_and_dxgi_formats) / sizeof(metal_and_dxgi_formats[0]);
 
