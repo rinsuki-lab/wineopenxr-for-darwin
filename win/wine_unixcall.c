@@ -96,7 +96,7 @@ unixlib_handle_t __wineopenxr_unixlib_handle = 0;
 NTSTATUS WINAPI init_unix_call(void)
 {
     UNICODE_STRING name;
-    RtlInitUnicodeString(&name, L"wineopenxr.so");
+    RtlInitUnicodeString(&name, L"wineopenxr_darwinside.so");
     NTSTATUS status = __wine_load_unix_lib(&name, NULL, &__wineopenxr_unixlib_handle );
     return status;
 }

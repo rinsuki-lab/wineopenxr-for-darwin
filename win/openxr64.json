@@ -2,6 +2,6 @@
     "file_format_version": "1.0.0",
     "runtime": {
         "name": "wineopenxr-for-darwin",
-        "library_path": "./wineopenxr.dll"
+        "library_path": "./wineopenxr_darwin64.dll"
     }
 }

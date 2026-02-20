@@ -15,7 +15,7 @@ target_link_libraries(wineopenxr PRIVATE ntdll user32 ucrt)
 
 set_target_properties(wineopenxr PROPERTIES
     PREFIX ""
-    OUTPUT_NAME "wineopenxr"
+    OUTPUT_NAME "wineopenxr_darwin64"
 )
 
 # Copy openxr64.json next to the built target so it's available as an artifact

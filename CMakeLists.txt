@@ -15,7 +15,7 @@ add_subdirectory(third_party/OpenXR-SDK)
 # macOS build
 add_subdirectory(mac)
 
-# --- Windows side (wineopenxr.dll) ---
+# --- Windows side (wineopenxr_darwin64.dll) ---
 # Cross-compiled with mingw as a separate CMake project
 ExternalProject_Add(wineopenxr_dll
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/win
@@ -23,6 +23,6 @@ ExternalProject_Add(wineopenxr_dll
     CMAKE_ARGS
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/x86_64-w64-mingw32.cmake
         -DWINE_LIB_PATH=${WINE_LIB_PATH}
-    BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/win/wineopenxr.dll
+    BUILD_BYPRODUCTS ${CMAKE_BINARY_DIR}/win/wineopenxr_darwin64.dll
     INSTALL_COMMAND ""
 )
