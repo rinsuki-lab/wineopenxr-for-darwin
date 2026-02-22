@@ -56,10 +56,10 @@ THUNKS = [
     "xrPollEvent",
     "xrReleaseSwapchainImage",
     "xrRequestExitSession",
-    # "xrResultToString",
+    "xrResultToString",
     "xrStopHapticFeedback",
     "xrStringToPath",
-    # "xrStructureTypeToString",
+    "xrStructureTypeToString",
     "xrSuggestInteractionProfileBindings",
     "xrSyncActions",
     "xrWaitFrame",
@@ -116,6 +116,8 @@ with open(XML_PATH, "r") as fr:
         win_c_end: list[str] = [
             "    };",
             "    NTSTATUS res = UNIX_CALL(" + str(current_syscall_number) + ", &params);",
+        ]
+        win_c_endend: list[str] = [
             "    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;",
             "    return params.result;",
             "}"
@@ -130,7 +132,14 @@ with open(XML_PATH, "r") as fr:
             if protoName not in THUNKS_WINDOWS_SIDE_ONLY:
                 mac_c.append("      " + ("  " if  is_first else ", ") + "params->" + param.find("name").text)
             win_c.append("  " + ("  " if  is_first else ", ") + text.strip())
-            win_c_middle.append("        ." + param.find("name").text + " = " + param.find("name").text + ", ")
+            if "[" in text:
+                win_c_end.append("    memmove(" + ", ".join([
+                    param.find("name").text,
+                    "params." + param.find("name").text,
+                    "sizeof(params." + param.find("name").text + ")",
+                ]) + ");")
+            else:
+                win_c_middle.append("        ." + param.find("name").text + " = " + param.find("name").text + ", ")
             is_first = False
         struct_h.append("    " + protoType + " result;")
         struct_h.append("};")
@@ -144,7 +153,7 @@ with open(XML_PATH, "r") as fr:
         else:
             thunk_mac += "\n".join(mac_c) + "\n\n"
         thunk_shared += "\n".join(struct_h) + "\n\n"
-        thunk_win += "\n".join([*win_c, *win_c_middle, *win_c_end]) + "\n\n"
+        thunk_win += "\n".join([*win_c, *win_c_middle, *win_c_end, *win_c_endend]) + "\n\n"
         thunk_win_gipa += "    if (strcmp(name, \"" + protoName + "\") == 0) {\n"
         thunk_win_gipa += "        *function = (PFN_xrVoidFunction)&wine_" + protoName + ";\n"
         thunk_win_gipa += "        return XR_SUCCESS;\n"

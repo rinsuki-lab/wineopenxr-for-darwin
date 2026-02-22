@@ -37,6 +37,20 @@ struct PARAMS_xrDestroyInstance {
     XrResult result;
 };
 
+struct PARAMS_xrResultToString {
+    XrInstance   instance;
+    XrResult   value;
+    char   buffer [ XR_MAX_RESULT_STRING_SIZE ];
+    XrResult result;
+};
+
+struct PARAMS_xrStructureTypeToString {
+    XrInstance   instance;
+    XrStructureType   value;
+    char   buffer [ XR_MAX_STRUCTURE_NAME_SIZE ];
+    XrResult result;
+};
+
 struct PARAMS_xrGetInstanceProperties {
     XrInstance   instance;
     XrInstanceProperties *  instanceProperties;

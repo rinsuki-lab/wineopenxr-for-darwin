@@ -59,6 +59,36 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroyInstance(
     return params.result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL wine_xrResultToString(
+    XrInstance   instance
+  , XrResult   value
+  , char   buffer [ XR_MAX_RESULT_STRING_SIZE ]
+) {
+    struct PARAMS_xrResultToString params = {
+        .instance = instance, 
+        .value = value, 
+    };
+    NTSTATUS res = UNIX_CALL(9, &params);
+    memmove(buffer, params.buffer, sizeof(params.buffer));
+    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
+    return params.result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL wine_xrStructureTypeToString(
+    XrInstance   instance
+  , XrStructureType   value
+  , char   buffer [ XR_MAX_STRUCTURE_NAME_SIZE ]
+) {
+    struct PARAMS_xrStructureTypeToString params = {
+        .instance = instance, 
+        .value = value, 
+    };
+    NTSTATUS res = UNIX_CALL(10, &params);
+    memmove(buffer, params.buffer, sizeof(params.buffer));
+    if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
+    return params.result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetInstanceProperties(
     XrInstance   instance
   , XrInstanceProperties *  instanceProperties
@@ -67,7 +97,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetInstanceProperties(
         .instance = instance, 
         .instanceProperties = instanceProperties, 
     };
-    NTSTATUS res = UNIX_CALL(9, &params);
+    NTSTATUS res = UNIX_CALL(11, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -82,7 +112,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetSystem(
         .getInfo = getInfo, 
         .systemId = systemId, 
     };
-    NTSTATUS res = UNIX_CALL(10, &params);
+    NTSTATUS res = UNIX_CALL(12, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -97,7 +127,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetSystemProperties(
         .systemId = systemId, 
         .properties = properties, 
     };
-    NTSTATUS res = UNIX_CALL(11, &params);
+    NTSTATUS res = UNIX_CALL(13, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -112,7 +142,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateSession(
         .createInfo = createInfo, 
         .session = session, 
     };
-    NTSTATUS res = UNIX_CALL(12, &params);
+    NTSTATUS res = UNIX_CALL(14, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -123,7 +153,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroySession(
     struct PARAMS_xrDestroySession params = {
         .session = session, 
     };
-    NTSTATUS res = UNIX_CALL(13, &params);
+    NTSTATUS res = UNIX_CALL(15, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -134,7 +164,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroySpace(
     struct PARAMS_xrDestroySpace params = {
         .space = space, 
     };
-    NTSTATUS res = UNIX_CALL(14, &params);
+    NTSTATUS res = UNIX_CALL(16, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -177,7 +207,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroySwapchain(
     struct PARAMS_xrDestroySwapchain params = {
         .swapchain = swapchain, 
     };
-    NTSTATUS res = UNIX_CALL(15, &params);
+    NTSTATUS res = UNIX_CALL(17, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -194,7 +224,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateSwapchainImages(
         .imageCountOutput = imageCountOutput, 
         .images = images, 
     };
-    NTSTATUS res = UNIX_CALL(16, &params);
+    NTSTATUS res = UNIX_CALL(18, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -209,7 +239,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrAcquireSwapchainImage(
         .acquireInfo = acquireInfo, 
         .index = index, 
     };
-    NTSTATUS res = UNIX_CALL(17, &params);
+    NTSTATUS res = UNIX_CALL(19, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -222,7 +252,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrWaitSwapchainImage(
         .swapchain = swapchain, 
         .waitInfo = waitInfo, 
     };
-    NTSTATUS res = UNIX_CALL(18, &params);
+    NTSTATUS res = UNIX_CALL(20, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -235,7 +265,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrReleaseSwapchainImage(
         .swapchain = swapchain, 
         .releaseInfo = releaseInfo, 
     };
-    NTSTATUS res = UNIX_CALL(19, &params);
+    NTSTATUS res = UNIX_CALL(21, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -248,7 +278,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrBeginSession(
         .session = session, 
         .beginInfo = beginInfo, 
     };
-    NTSTATUS res = UNIX_CALL(20, &params);
+    NTSTATUS res = UNIX_CALL(22, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -259,7 +289,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEndSession(
     struct PARAMS_xrEndSession params = {
         .session = session, 
     };
-    NTSTATUS res = UNIX_CALL(21, &params);
+    NTSTATUS res = UNIX_CALL(23, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -270,7 +300,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrRequestExitSession(
     struct PARAMS_xrRequestExitSession params = {
         .session = session, 
     };
-    NTSTATUS res = UNIX_CALL(22, &params);
+    NTSTATUS res = UNIX_CALL(24, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -287,7 +317,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateReferenceSpaces(
         .spaceCountOutput = spaceCountOutput, 
         .spaces = spaces, 
     };
-    NTSTATUS res = UNIX_CALL(23, &params);
+    NTSTATUS res = UNIX_CALL(25, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -302,7 +332,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateReferenceSpace(
         .createInfo = createInfo, 
         .space = space, 
     };
-    NTSTATUS res = UNIX_CALL(24, &params);
+    NTSTATUS res = UNIX_CALL(26, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -317,7 +347,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateActionSpace(
         .createInfo = createInfo, 
         .space = space, 
     };
-    NTSTATUS res = UNIX_CALL(25, &params);
+    NTSTATUS res = UNIX_CALL(27, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -334,7 +364,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrLocateSpace(
         .time = time, 
         .location = location, 
     };
-    NTSTATUS res = UNIX_CALL(26, &params);
+    NTSTATUS res = UNIX_CALL(28, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -353,7 +383,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateViewConfigurations(
         .viewConfigurationTypeCountOutput = viewConfigurationTypeCountOutput, 
         .viewConfigurationTypes = viewConfigurationTypes, 
     };
-    NTSTATUS res = UNIX_CALL(27, &params);
+    NTSTATUS res = UNIX_CALL(29, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -374,7 +404,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateEnvironmentBlendModes(
         .environmentBlendModeCountOutput = environmentBlendModeCountOutput, 
         .environmentBlendModes = environmentBlendModes, 
     };
-    NTSTATUS res = UNIX_CALL(28, &params);
+    NTSTATUS res = UNIX_CALL(30, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -391,7 +421,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetViewConfigurationProperties(
         .viewConfigurationType = viewConfigurationType, 
         .configurationProperties = configurationProperties, 
     };
-    NTSTATUS res = UNIX_CALL(29, &params);
+    NTSTATUS res = UNIX_CALL(31, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -412,7 +442,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateViewConfigurationViews(
         .viewCountOutput = viewCountOutput, 
         .views = views, 
     };
-    NTSTATUS res = UNIX_CALL(30, &params);
+    NTSTATUS res = UNIX_CALL(32, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -425,7 +455,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrBeginFrame(
         .session = session, 
         .frameBeginInfo = frameBeginInfo, 
     };
-    NTSTATUS res = UNIX_CALL(31, &params);
+    NTSTATUS res = UNIX_CALL(33, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -446,7 +476,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrLocateViews(
         .viewCountOutput = viewCountOutput, 
         .views = views, 
     };
-    NTSTATUS res = UNIX_CALL(32, &params);
+    NTSTATUS res = UNIX_CALL(34, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -459,7 +489,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEndFrame(
         .session = session, 
         .frameEndInfo = frameEndInfo, 
     };
-    NTSTATUS res = UNIX_CALL(33, &params);
+    NTSTATUS res = UNIX_CALL(35, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -474,7 +504,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrWaitFrame(
         .frameWaitInfo = frameWaitInfo, 
         .frameState = frameState, 
     };
-    NTSTATUS res = UNIX_CALL(34, &params);
+    NTSTATUS res = UNIX_CALL(36, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -489,7 +519,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrApplyHapticFeedback(
         .hapticActionInfo = hapticActionInfo, 
         .hapticFeedback = hapticFeedback, 
     };
-    NTSTATUS res = UNIX_CALL(35, &params);
+    NTSTATUS res = UNIX_CALL(37, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -502,7 +532,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrStopHapticFeedback(
         .session = session, 
         .hapticActionInfo = hapticActionInfo, 
     };
-    NTSTATUS res = UNIX_CALL(36, &params);
+    NTSTATUS res = UNIX_CALL(38, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -515,7 +545,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrPollEvent(
         .instance = instance, 
         .eventData = eventData, 
     };
-    NTSTATUS res = UNIX_CALL(37, &params);
+    NTSTATUS res = UNIX_CALL(39, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -530,7 +560,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrStringToPath(
         .pathString = pathString, 
         .path = path, 
     };
-    NTSTATUS res = UNIX_CALL(38, &params);
+    NTSTATUS res = UNIX_CALL(40, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -549,7 +579,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrPathToString(
         .bufferCountOutput = bufferCountOutput, 
         .buffer = buffer, 
     };
-    NTSTATUS res = UNIX_CALL(39, &params);
+    NTSTATUS res = UNIX_CALL(41, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -564,7 +594,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetReferenceSpaceBoundsRect(
         .referenceSpaceType = referenceSpaceType, 
         .bounds = bounds, 
     };
-    NTSTATUS res = UNIX_CALL(40, &params);
+    NTSTATUS res = UNIX_CALL(42, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -579,7 +609,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetActionStateBoolean(
         .getInfo = getInfo, 
         .state = state, 
     };
-    NTSTATUS res = UNIX_CALL(41, &params);
+    NTSTATUS res = UNIX_CALL(43, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -594,7 +624,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetActionStateFloat(
         .getInfo = getInfo, 
         .state = state, 
     };
-    NTSTATUS res = UNIX_CALL(42, &params);
+    NTSTATUS res = UNIX_CALL(44, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -609,7 +639,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetActionStateVector2f(
         .getInfo = getInfo, 
         .state = state, 
     };
-    NTSTATUS res = UNIX_CALL(43, &params);
+    NTSTATUS res = UNIX_CALL(45, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -624,7 +654,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetActionStatePose(
         .getInfo = getInfo, 
         .state = state, 
     };
-    NTSTATUS res = UNIX_CALL(44, &params);
+    NTSTATUS res = UNIX_CALL(46, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -639,7 +669,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateActionSet(
         .createInfo = createInfo, 
         .actionSet = actionSet, 
     };
-    NTSTATUS res = UNIX_CALL(45, &params);
+    NTSTATUS res = UNIX_CALL(47, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -650,7 +680,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroyActionSet(
     struct PARAMS_xrDestroyActionSet params = {
         .actionSet = actionSet, 
     };
-    NTSTATUS res = UNIX_CALL(46, &params);
+    NTSTATUS res = UNIX_CALL(48, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -665,7 +695,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrCreateAction(
         .createInfo = createInfo, 
         .action = action, 
     };
-    NTSTATUS res = UNIX_CALL(47, &params);
+    NTSTATUS res = UNIX_CALL(49, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -676,7 +706,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrDestroyAction(
     struct PARAMS_xrDestroyAction params = {
         .action = action, 
     };
-    NTSTATUS res = UNIX_CALL(48, &params);
+    NTSTATUS res = UNIX_CALL(50, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -689,7 +719,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrSuggestInteractionProfileBindings(
         .instance = instance, 
         .suggestedBindings = suggestedBindings, 
     };
-    NTSTATUS res = UNIX_CALL(49, &params);
+    NTSTATUS res = UNIX_CALL(51, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -702,7 +732,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrAttachSessionActionSets(
         .session = session, 
         .attachInfo = attachInfo, 
     };
-    NTSTATUS res = UNIX_CALL(50, &params);
+    NTSTATUS res = UNIX_CALL(52, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -717,7 +747,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetCurrentInteractionProfile(
         .topLevelUserPath = topLevelUserPath, 
         .interactionProfile = interactionProfile, 
     };
-    NTSTATUS res = UNIX_CALL(51, &params);
+    NTSTATUS res = UNIX_CALL(53, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -730,7 +760,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrSyncActions(
         .session = session, 
         .syncInfo = syncInfo, 
     };
-    NTSTATUS res = UNIX_CALL(52, &params);
+    NTSTATUS res = UNIX_CALL(54, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -749,7 +779,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrEnumerateBoundSourcesForAction(
         .sourceCountOutput = sourceCountOutput, 
         .sources = sources, 
     };
-    NTSTATUS res = UNIX_CALL(53, &params);
+    NTSTATUS res = UNIX_CALL(55, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -768,7 +798,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrGetInputSourceLocalizedName(
         .bufferCountOutput = bufferCountOutput, 
         .buffer = buffer, 
     };
-    NTSTATUS res = UNIX_CALL(54, &params);
+    NTSTATUS res = UNIX_CALL(56, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -783,7 +813,7 @@ XRAPI_ATTR XrResult XRAPI_CALL wine_xrLocateSpaces(
         .locateInfo = locateInfo, 
         .spaceLocations = spaceLocations, 
     };
-    NTSTATUS res = UNIX_CALL(55, &params);
+    NTSTATUS res = UNIX_CALL(57, &params);
     if (res != STATUS_SUCCESS) return XR_ERROR_RUNTIME_FAILURE;
     return params.result;
 }
@@ -799,6 +829,14 @@ static inline XrResult wine_xrGetInstanceProcAddr(XrInstance instance, const cha
     }
     if (strcmp(name, "xrDestroyInstance") == 0) {
         *function = (PFN_xrVoidFunction)&wine_xrDestroyInstance;
+        return XR_SUCCESS;
+    }
+    if (strcmp(name, "xrResultToString") == 0) {
+        *function = (PFN_xrVoidFunction)&wine_xrResultToString;
+        return XR_SUCCESS;
+    }
+    if (strcmp(name, "xrStructureTypeToString") == 0) {
+        *function = (PFN_xrVoidFunction)&wine_xrStructureTypeToString;
         return XR_SUCCESS;
     }
     if (strcmp(name, "xrGetInstanceProperties") == 0) {
