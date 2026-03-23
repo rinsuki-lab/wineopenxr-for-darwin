@@ -45,10 +45,11 @@ static NTSTATUS _xrEnumerateInstanceExtensionProperties(struct PARAMS_xrEnumerat
     if (params->layerName == NULL || *params->layerName == '\0') {
         // We need to inject XR_KHR_D3D11_enable extension
         uint32_t originalCount = *params->propertyCountOutput;
-        (*params->propertyCountOutput) += 1;
-        if (params->propertyCapacityInput > originalCount) {
-            strcpy(params->properties[originalCount].extensionName, "XR_KHR_D3D11_enable");
-            params->properties[originalCount].extensionVersion = 1;
+        *params->propertyCountOutput = 1;
+        if (params->propertyCapacityInput) {
+            strcpy(params->properties[0].extensionName, "XR_KHR_D3D11_enable");
+            params->properties[0].extensionVersion = 1;
+            *params->propertyCountOutput = 1;
         }
     }
     return STATUS_SUCCESS;
@@ -59,14 +60,18 @@ static NTSTATUS _xrCreateInstance(struct PARAMS_xrCreateInstance* params)
     XrInstanceCreateInfo modifiedCreateInfo = *params->createInfo;
     // We need to modify XR_KHR_D3D11_enable to XR_KHR_metal_enable
     const char** modifiedExtensionNames = malloc(sizeof(char*) * modifiedCreateInfo.enabledExtensionCount);
+    uint32_t added = 0;
     for (uint32_t i = 0; i < modifiedCreateInfo.enabledExtensionCount; i++) {
         if (strcmp(modifiedCreateInfo.enabledExtensionNames[i], "XR_KHR_D3D11_enable") == 0) {
-            modifiedExtensionNames[i] = "XR_KHR_metal_enable";
+            modifiedExtensionNames[added++] = "XR_KHR_metal_enable";
+            printf("supports %s\n", modifiedExtensionNames[added - 1]);
         } else {
-            modifiedExtensionNames[i] = modifiedCreateInfo.enabledExtensionNames[i];
+            printf("not supports %s\n", modifiedCreateInfo.enabledExtensionNames[i]);
+            // modifiedExtensionNames[i] = modifiedCreateInfo.enabledExtensionNames[i];
         }
     }
     modifiedCreateInfo.enabledExtensionNames = modifiedExtensionNames;
+    modifiedCreateInfo.enabledExtensionCount = added;
     params->result = xrCreateInstance(&modifiedCreateInfo, params->instance);
     free(modifiedExtensionNames);
     return STATUS_SUCCESS;
